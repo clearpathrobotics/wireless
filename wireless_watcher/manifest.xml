@@ -1,0 +1,16 @@
+<package>
+  <description brief="wireless_watcher">
+
+     wireless_watcher
+
+  </description>
+  <author>Mike Purvis</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/wireless_watcher</url>
+  <depend package="rospy"/>
+  <depend package="wireless_msgs"/>
+
+</package>
+
+
