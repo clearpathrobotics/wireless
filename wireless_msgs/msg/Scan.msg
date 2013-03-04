@@ -1,1 +1,1 @@
-AccessPoint[] access_points
+Network[] networks
