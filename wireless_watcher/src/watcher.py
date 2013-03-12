@@ -24,13 +24,21 @@ def trim(field):
 class Connection(wireless_msgs.msg.Connection):
     def __init__(self, fields):
         args = {}
+
         args['bitrate'] = trim(fields['Bit Rate'])
-        args['txpower'] = trim(fields['Tx-Power'])
+
+        try: args['txpower'] = trim(fields['Tx-Power'])
+        except: pass
+
         args['link_quality_raw'] = fields['Link Quality']
         num, den = re.split('/', args['link_quality_raw']) 
         args['link_quality'] = float(num) / float(den)
+
         args['signal_level'] = trim(fields['Signal level'])
-        # args['noise_level'] = trim(fields['Noise level'])
+
+        try: args['noise_level'] = trim(fields['Noise level'])
+        except: pass
+
         super(Connection, self).__init__(**args)
 
 class Network(wireless_msgs.msg.Network):

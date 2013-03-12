@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="wireless_watcher" name="wireless_watcher" type="watcher.py" respawn="true" />
+</launch>
