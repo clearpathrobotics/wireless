@@ -3,3 +3,4 @@ msg_gen
 wireless_msgs/src/wireless_msgs
 *.py[co]
 *.swp
+bin
