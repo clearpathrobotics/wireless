@@ -1,6 +1,9 @@
 build
 msg_gen
 wireless_msgs/src/wireless_msgs
+wireless_quality/src/wireless_quality
 *.py[co]
 *.swp
 bin
+cfg
+docs
