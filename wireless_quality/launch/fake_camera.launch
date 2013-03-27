@@ -1,0 +1,6 @@
+<launch>
+  <group ns="camera">
+    <node pkg="wireless_quality" type="publisher" name="fake_camera_publisher">
+    </node>
+  </group>
+</launch>
