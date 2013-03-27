@@ -5,5 +5,6 @@ wireless_quality/src/wireless_quality
 *.py[co]
 *.swp
 bin
-cfg
+*.cfgc
+wireless_quality/cfg/wireless_quality
 docs
