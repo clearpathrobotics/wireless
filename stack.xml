@@ -1,9 +1,0 @@
-<stack>
-  <description brief="wireless">wireless</description>
-  <author>Mike Purvis</author>
-  <license>BSD</license>  
-  <review status="unreviewed" notes=""/>
-  <url>http://ros.org/wiki/wireless</url>
-  <depend stack="ros_comm" />
-  <!-- TODO: system dependency on wireless-tools -->
-</stack>
