@@ -1,14 +1,10 @@
 #!/usr/bin/python
 
-import roslib; roslib.load_manifest('wireless_watcher')
-
 import rospy
 import wireless_msgs.msg
 import subprocess, re
 
-
 rospy.init_node('wireless_watcher')
-
 
 hz = rospy.get_param('~hz', 1)
 dev = rospy.get_param('~dev', 'wlan0')

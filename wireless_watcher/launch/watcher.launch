@@ -1,0 +1,3 @@
+<launch>
+  <node ns="wireless" pkg="wireless_watcher" name="wireless_watcher" type="watcher_node" />
+</launch>

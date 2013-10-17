@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <name>wireless_watcher</name>
+  <version>0.0.0</version>
+  <description>The wireless_watcher package</description>
+
+  <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
+  <author>Mike Purvis</author>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>wireless_msgs</run_depend>
+
+  <export>
+  </export>
+</package>
