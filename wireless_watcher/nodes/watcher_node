@@ -2,6 +2,7 @@
 
 import rospy
 import wireless_msgs.msg
+import std_msgs.msg
 import subprocess, re
 
 rospy.init_node('wireless_watcher')
@@ -10,7 +11,7 @@ hz = rospy.get_param('~hz', 1)
 dev = rospy.get_param('~dev', 'wlan0')
 previous_error = False
 previous_success = False
-r = None
+r = rospy.Rate(hz)
 
 def trim(field):
     m = re.match('[0-9-.]+', field)
@@ -44,10 +45,20 @@ class Network(wireless_msgs.msg.Network):
 
 
 connection_pub = rospy.Publisher('connection', Connection)
-network_pub = rospy.Publisher('network', Network)
 
+# Disable this until we actually collect and publish the data.
+# network_pub = rospy.Publisher('network', Network)
+
+connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool)
 
 while not rospy.is_shutdown():
+  try:
+    ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT);
+    if re.search(r'^\s*inet\s', ip_str, re.MULTILINE):
+      connected_pub.publish(True)
+  except subprocess.CalledProcessError:
+    connected_pub.publish(False)
+    
   try:
     wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT);
     fields_str = re.split('\s\s+', wifi_str)
@@ -62,13 +73,11 @@ while not rospy.is_shutdown():
       previous_success = True
       previous_error = False
       rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
-      r = rospy.Rate(hz)
 
   except subprocess.CalledProcessError:
     if not previous_error:
       previous_error = True
       previous_success = False
-      rospy.logerr("Error checking status of interface %s. Will try again every 10s." % dev)
-      r = rospy.Rate(0.1)
+      rospy.logerr("Error checking status of interface %s. Will try again at %f Hz." % (dev, hz))
     
   r.sleep()
