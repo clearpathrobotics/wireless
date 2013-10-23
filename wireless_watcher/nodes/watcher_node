@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+# See: http://stackoverflow.com/a/13193573/109517
+import threading
+threading._DummyThread._Thread__stop = lambda x: 42
+
 import rospy
 import wireless_msgs.msg
 import std_msgs.msg
