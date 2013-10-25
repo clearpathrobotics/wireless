@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2013-10-24)
+------------------
 * Workaround to suppress DummyThread error spew.
 * Add simple boolean to publish ethernet-has-ip status.
 
