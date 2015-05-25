@@ -17,16 +17,16 @@ previous_error = False
 previous_success = False
 r = rospy.Rate(hz)
 
-def trim(field):
+def trim(field, type=int):
     m = re.match('[0-9-.]+', field)
     if m:
-        return int(m.group(0))
+        return type(m.group(0))
 
 class Connection(wireless_msgs.msg.Connection):
     def __init__(self, fields):
         args = {}
 
-        args['bitrate'] = trim(fields['Bit Rate'])
+        args['bitrate'] = trim(fields['Bit Rate'], float)
 
         try: args['txpower'] = trim(fields['Tx-Power'])
         except: pass
@@ -39,6 +39,9 @@ class Connection(wireless_msgs.msg.Connection):
 
         try: args['noise_level'] = trim(fields['Noise level'])
         except: pass
+
+        args['essid'] = fields['ESSID'].strip('"')
+        args['bssid'] = fields['Access Point'].strip()
 
         super(Connection, self).__init__(**args)
 
