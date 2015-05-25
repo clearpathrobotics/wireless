@@ -37,6 +37,7 @@ class Connection(wireless_msgs.msg.Connection):
           args['link_quality_raw'] = fields['Link Quality']
           num, den = re.split('/', args['link_quality_raw'])
           args['link_quality'] = float(num) / float(den)
+          args['frequency'] = trim(fields['Frequency'], float)
         except: pass
 
         super(Connection, self).__init__(**args)
