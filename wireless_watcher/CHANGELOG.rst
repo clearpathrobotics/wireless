@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2015-06-17)
+------------------
 * Added ESSID and BSSID fields, use floats for bitrate
 * Contributors: Alex Bencz
 
