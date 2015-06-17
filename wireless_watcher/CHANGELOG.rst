@@ -2,6 +2,11 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added ESSID and BSSID fields, use floats for bitrate
+* Contributors: Alex Bencz
+
 0.0.2 (2013-10-24)
 ------------------
 * Workaround to suppress DummyThread error spew.
