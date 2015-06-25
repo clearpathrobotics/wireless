@@ -2,6 +2,11 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add install rule for launch dir
+* Contributors: Paul Bovbel
+
 0.0.3 (2015-06-17)
 ------------------
 * Added ESSID and BSSID fields, use floats for bitrate
