@@ -26,22 +26,29 @@ class Connection(wireless_msgs.msg.Connection):
     def __init__(self, fields):
         args = {}
 
-        args['bitrate'] = trim(fields['Bit Rate'], float)
+        try: args['bitrate'] = trim(fields['Bit Rate'], float)
+        except: pass
 
         try: args['txpower'] = trim(fields['Tx-Power'])
         except: pass
 
-        args['link_quality_raw'] = fields['Link Quality']
-        num, den = re.split('/', args['link_quality_raw']) 
-        args['link_quality'] = float(num) / float(den)
-
-        args['signal_level'] = trim(fields['Signal level'])
+        try: 
+          args['link_quality_raw'] = fields['Link Quality']
+          num, den = re.split('/', args['link_quality_raw'])
+          args['link_quality'] = float(num) / float(den)
+        except: pass
+        
+        try: args['signal_level'] = trim(fields['Signal level'])
+        except: pass
 
         try: args['noise_level'] = trim(fields['Noise level'])
         except: pass
 
-        args['essid'] = fields['ESSID'].strip('"')
-        args['bssid'] = fields['Access Point'].strip()
+        try: args['essid'] = fields['ESSID'].strip('"')
+        except: pass
+
+        try: args['bssid'] = fields['Access Point'].strip()
+        except: pass
 
         super(Connection, self).__init__(**args)
 
