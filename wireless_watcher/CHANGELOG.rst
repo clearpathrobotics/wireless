@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.6 (2015-09-02)
+------------------
 * Added queue_size parameter to publishers
 * Contributors: Mustafa Safri
 
