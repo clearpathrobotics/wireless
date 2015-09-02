@@ -47,12 +47,12 @@ class Network(wireless_msgs.msg.Network):
         super(Network, self).__init__(**args)
 
 
-connection_pub = rospy.Publisher('connection', Connection)
+connection_pub = rospy.Publisher('connection', Connection, queue_size=1)
 
 # Disable this until we actually collect and publish the data.
 # network_pub = rospy.Publisher('network', Network)
 
-connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool)
+connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool, queue_size=1)
 
 while not rospy.is_shutdown():
   try:
