@@ -11,3 +11,4 @@ int16 noise_level  # dBm
 
 string essid
 string bssid
+float64 frequency

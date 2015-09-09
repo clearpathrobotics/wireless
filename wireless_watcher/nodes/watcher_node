@@ -32,6 +32,7 @@ class Connection(wireless_msgs.msg.Connection):
         args['noise_level'] = trim(fields.get('Noise level', "0"))
         args['essid'] = fields.get('ESSID', "").strip('"')
         args['bssid'] = fields.get('Access Point', "").strip()
+        args['frequency'] = trim(fields.get('Frequency', ""), float)
 
         try:
           args['link_quality_raw'] = fields['Link Quality']
