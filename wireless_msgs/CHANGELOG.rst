@@ -2,6 +2,11 @@
 Changelog for package wireless_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added frequency to watcher node
+* Contributors: Alex Bencz
+
 0.0.6 (2015-09-02)
 ------------------
 
