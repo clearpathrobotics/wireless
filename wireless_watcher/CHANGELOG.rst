@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.7 (2015-09-09)
+------------------
 * Added frequency to watcher node
 * Contributors: Alex Bencz
 
