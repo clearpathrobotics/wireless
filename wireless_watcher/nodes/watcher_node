@@ -93,18 +93,18 @@ def main():
 
     while not rospy.is_shutdown():
         try:
-            ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT);
+            ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT)
             if re.search(r'^\s*inet\s', ip_str, re.MULTILINE):
-              connected_pub.publish(True)
+                connected_pub.publish(True)
         except subprocess.CalledProcessError:
             connected_pub.publish(False)
 
         try:
-            wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT);
+            wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT)
             fields_str = re.split('\s\s+', wifi_str)
             fields_list = [re.split('[:=]', field_str, maxsplit=1) for field_str in fields_str]
-            fields_dict = { 'dev': fields_str[0], 'type': fields_str[1] }
-            fields_dict.update(dict([field for field in fields_list if len(field) == 2 ]))
+            fields_dict = {'dev': fields_str[0], 'type': fields_str[1]}
+            fields_dict.update(dict([field for field in fields_list if len(field) == 2]))
 
             # Check if WiFi is connected to a network
             connection_msg = {}
@@ -113,10 +113,10 @@ def main():
 
             connection_pub.publish(connection_msg)
 
-          if not previous_success:
-              previous_success = True
-              previous_error = False
-              rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
+            if not previous_success:
+                previous_success = True
+                previous_error = False
+                rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
 
         except subprocess.CalledProcessError:
             if not previous_error:
