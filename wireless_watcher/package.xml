@@ -1,18 +1,15 @@
 <?xml version="1.0"?>
-<package>
+<package format="2">
   <name>wireless_watcher</name>
   <version>0.0.7</version>
-  <description>The wireless_watcher package</description>
+  <description>A Python-based which publishes connection information about a linux wireless interface.</description>
 
-  <maintainer email="mpurvis@clearpathrobotics.com">Mike Purvis</maintainer>
+  <maintainer email="mpurvis@clearpath.ai">Mike Purvis</maintainer>
   <author>Mike Purvis</author>
 
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <run_depend>rospy</run_depend>
-  <run_depend>wireless_msgs</run_depend>
-
-  <export>
-  </export>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>wireless_msgs</exec_depend>
 </package>
