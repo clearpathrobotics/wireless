@@ -1,26 +1,42 @@
 #!/usr/bin/python
+# Software License Agreement (BSD)
+#
+# @author    Mike Purvis <mpurvis@clearpath.ai>
+# @copyright (c) 2018, Clearpath Robotics, Inc., All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification, are permitted provided that
+# the following conditions are met:
+# * Redistributions of source code must retain the above copyright notice, this list of conditions and the
+#   following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+#   following disclaimer in the documentation and/or other materials provided with the distribution.
+# * Neither the name of Clearpath Robotics nor the names of its contributors may be used to endorse or
+#   promote products derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
-# See: http://stackoverflow.com/a/13193573/109517
-import threading
-threading._DummyThread._Thread__stop = lambda x: 42
-
+import os
+import re
 import rospy
-import wireless_msgs.msg
 import std_msgs.msg
-import subprocess, re
+import subprocess
+import wireless_msgs.msg
 
-rospy.init_node('wireless_watcher')
+SYS_NET_PATH = '/sys/class/net'
 
-hz = rospy.get_param('~hz', 1)
-dev = rospy.get_param('~dev', 'wlan0')
-previous_error = False
-previous_success = False
-r = rospy.Rate(hz)
 
 def trim(field, type=int):
     m = re.match('[0-9-.]+', field)
     if m:
         return type(m.group(0))
+
 
 class Connection(wireless_msgs.msg.Connection):
     def __init__(self, fields):
@@ -35,12 +51,14 @@ class Connection(wireless_msgs.msg.Connection):
         args['frequency'] = trim(fields.get('Frequency', ""), float)
 
         try:
-          args['link_quality_raw'] = fields['Link Quality']
-          num, den = re.split('/', args['link_quality_raw'])
-          args['link_quality'] = float(num) / float(den)
-        except: pass
+            args['link_quality_raw'] = fields['Link Quality']
+            num, den = re.split('/', args['link_quality_raw'])
+            args['link_quality'] = float(num) / float(den)
+        except:
+            pass
 
         super(Connection, self).__init__(**args)
+
 
 class Network(wireless_msgs.msg.Network):
     def __init__(self, fields):
@@ -48,44 +66,68 @@ class Network(wireless_msgs.msg.Network):
         super(Network, self).__init__(**args)
 
 
-connection_pub = rospy.Publisher('connection', Connection, queue_size=1)
+def main():
+    rospy.init_node('wireless_watcher')
 
-# Disable this until we actually collect and publish the data.
-# network_pub = rospy.Publisher('network', Network)
+    hz = rospy.get_param('~hz', 1)
 
-connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool, queue_size=1)
+    dev = rospy.get_param('~dev', None)
+    if not dev:
+        wldevs = [d for d in os.listdir(SYS_NET_PATH) if d.startswith('wl')]
+        if wldevs:
+            dev = wldevs[0]
+        else:
+            rospy.logfatal("No wireless device found to monitor.")
+            return 1
+    rospy.loginfo("Monitoring %s" % dev)
 
-while not rospy.is_shutdown():
-  try:
-    ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT);
-    if re.search(r'^\s*inet\s', ip_str, re.MULTILINE):
-      connected_pub.publish(True)
-  except subprocess.CalledProcessError:
-    connected_pub.publish(False)
-    
-  try:
-    wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT);
-    fields_str = re.split('\s\s+', wifi_str)
-    fields_list = [re.split('[:=]', field_str, maxsplit=1) for field_str in fields_str]
-    fields_dict = { 'dev': fields_str[0], 'type': fields_str[1] }
-    fields_dict.update(dict([field for field in fields_list if len(field) == 2 ]))
+    previous_error = False
+    previous_success = False
+    r = rospy.Rate(hz)
 
-    # Check if WiFi is connected to a network
-    connection_msg = {}
-    if "Not-Associated" not in fields_dict['Access Point']:
-      connection_msg = Connection(fields_dict)
+    connection_pub = rospy.Publisher('connection', Connection, queue_size=1)
+    connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool, queue_size=1)
 
-    connection_pub.publish(connection_msg)
+    # Disable this until we actually collect and publish the data.
+    # network_pub = rospy.Publisher('network', Network)
 
-    if not previous_success:
-      previous_success = True
-      previous_error = False
-      rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
+    while not rospy.is_shutdown():
+        try:
+            ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT)
+            if re.search(r'^\s*inet\s', ip_str, re.MULTILINE):
+                connected_pub.publish(True)
+        except subprocess.CalledProcessError:
+            connected_pub.publish(False)
 
-  except subprocess.CalledProcessError:
-    if not previous_error:
-      previous_error = True
-      previous_success = False
-      rospy.logerr("Error checking status of interface %s. Will try again at %f Hz." % (dev, hz))
-    
-  r.sleep()
+        try:
+            wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT)
+            fields_str = re.split('\s\s+', wifi_str)
+            fields_list = [re.split('[:=]', field_str, maxsplit=1) for field_str in fields_str]
+            fields_dict = {'dev': fields_str[0], 'type': fields_str[1]}
+            fields_dict.update(dict([field for field in fields_list if len(field) == 2]))
+
+            # Check if WiFi is connected to a network
+            connection_msg = {}
+            if "Not-Associated" not in fields_dict['Access Point']:
+                connection_msg = Connection(fields_dict)
+
+            connection_pub.publish(connection_msg)
+
+            if not previous_success:
+                previous_success = True
+                previous_error = False
+                rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
+
+        except subprocess.CalledProcessError:
+            if not previous_error:
+                previous_error = True
+                previous_success = False
+                rospy.logerr("Error checking status of interface %s. Will try again at %f Hz." % (dev, hz))
+
+        r.sleep()
+    return 0
+
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())
