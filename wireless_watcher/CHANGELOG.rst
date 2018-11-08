@@ -2,6 +2,13 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Package format 2.
+* Further pep8 fixups.
+* Auto-detect wl* device if not passed explicitly.
+* Contributors: Mike Purvis
+
 0.0.7 (2015-09-09)
 ------------------
 * Added frequency to watcher node
