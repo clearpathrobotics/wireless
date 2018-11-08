@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>wireless_watcher</name>
-  <version>0.0.7</version>
+  <version>0.0.8</version>
   <description>A Python-based which publishes connection information about a linux wireless interface.</description>
 
   <maintainer email="mpurvis@clearpath.ai">Mike Purvis</maintainer>

@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.8 (2018-11-07)
+------------------
 * Package format 2.
 * Further pep8 fixups.
 * Auto-detect wl* device if not passed explicitly.
