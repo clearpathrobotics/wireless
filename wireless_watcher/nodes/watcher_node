@@ -73,7 +73,7 @@ def main():
 
     dev = rospy.get_param('~dev', None)
     if not dev:
-        wldevs = [d for d in os.listdir(SYS_NET_PATH) if d.startswith('wl')]
+        wldevs = [d for d in os.listdir(SYS_NET_PATH) if d.startswith('wl') or d.startswith('wifi')]
         if wldevs:
             dev = wldevs[0]
         else:
