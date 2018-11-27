@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>wireless_msgs</name>
-  <version>0.0.8</version>
+  <version>0.0.9</version>
   <description>Messages for describing a wireless network such as bitrate, essid, and link quality.</description>
 
   <maintainer email="mpurvis@clearpath.ai">Mike Purvis</maintainer>

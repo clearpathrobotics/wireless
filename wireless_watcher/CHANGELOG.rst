@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.9 (2018-11-27)
+------------------
 * Accept 'wifi' as device prefix for auto-detection.
 * Contributors: Mike Purvis
 
