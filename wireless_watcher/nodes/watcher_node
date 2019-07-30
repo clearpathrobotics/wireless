@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Software License Agreement (BSD)
 #
 # @author    Mike Purvis <mpurvis@clearpath.ai>
@@ -94,13 +94,13 @@ def main():
     while not rospy.is_shutdown():
         try:
             ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT)
-            if re.search(r'^\s*inet\s', ip_str, re.MULTILINE):
+            if re.search(b'^\s*inet\s', ip_str, re.MULTILINE):
                 connected_pub.publish(True)
         except subprocess.CalledProcessError:
             connected_pub.publish(False)
 
         try:
-            wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT)
+            wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT).decode()
             fields_str = re.split('\s\s+', wifi_str)
             fields_list = [re.split('[:=]', field_str, maxsplit=1) for field_str in fields_str]
             fields_dict = {'dev': fields_str[0], 'type': fields_str[1]}
