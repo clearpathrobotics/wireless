@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.0 (2019-10-10)
+------------------
 * Python 3 fixes for watcher_node. (`#10 <https://github.com/clearpathrobotics/wireless/issues/10>`_)
 * Contributors: Mike Purvis
 
