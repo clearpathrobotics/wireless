@@ -2,6 +2,11 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Python 3 fixes for watcher_node. (`#10 <https://github.com/clearpathrobotics/wireless/issues/10>`_)
+* Contributors: Mike Purvis
+
 0.0.9 (2018-11-27)
 ------------------
 * Accept 'wifi' as device prefix for auto-detection.
