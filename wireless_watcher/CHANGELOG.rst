@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2020-05-01)
+------------------
 * Improve connected detection logic so topic doesn't stop when interface is down
 * Contributors: Nikesh Bernardshaw
 
