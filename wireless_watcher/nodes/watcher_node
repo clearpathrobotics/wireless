@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Software License Agreement (BSD)
 #
 # @author    Mike Purvis <mpurvis@clearpath.ai>
@@ -93,10 +93,9 @@ def main():
 
     while not rospy.is_shutdown():
         try:
-            ip_str = subprocess.check_output(['ip', 'addr', 'show', dev], stderr=subprocess.STDOUT)
-            if re.search(b'^\s*inet\s', ip_str, re.MULTILINE):
-                connected_pub.publish(True)
-        except subprocess.CalledProcessError:
+            with open(os.path.join(SYS_NET_PATH, dev, 'operstate'), 'rb') as f:
+                connected_pub.publish(f.read().strip() == b'up')
+        except FileNotFoundError:
             connected_pub.publish(False)
 
         try:
