@@ -1,3 +1,5 @@
 <launch>
-  <node ns="wireless" pkg="wireless_watcher" name="wireless_watcher" type="watcher_node" />
+	<node ns="wireless" pkg="wireless_watcher" name="wireless_watcher" type="watcher_node">
+		<rosparam command="load" file="$(find wireless_watcher)/config/watcher.yaml"/>
+	</node>
 </launch>
