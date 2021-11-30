@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.2 (2021-11-30)
+------------------
 * Add wireless-tools as a dependency (`#14 <https://github.com/clearpathrobotics/wireless/issues/14>`_)
 * Contributors: Chris I-B
 
