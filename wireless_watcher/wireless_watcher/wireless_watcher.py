@@ -2,7 +2,8 @@
 # Software License Agreement (BSD)
 #
 # @author    Mike Purvis <mpurvis@clearpath.ai>
-# @copyright (c) 2018, Clearpath Robotics, Inc., All rights reserved.
+# @author    Roni Kreinin <rkreinin@clearpathrobotics.com>
+# @copyright (c) 2022, Clearpath Robotics, Inc., All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification, are permitted provided that
 # the following conditions are met:
@@ -24,10 +25,14 @@
 
 import os
 import re
-import rospy
+import rclpy
+import threading
 import std_msgs.msg
 import subprocess
-import wireless_msgs.msg
+
+from wireless_msgs.msg import Connection, Network
+
+from rclpy.qos import qos_profile_sensor_data
 
 SYS_NET_PATH = '/sys/class/net'
 
@@ -38,7 +43,7 @@ def trim(field, type=int):
         return type(m.group(0))
 
 
-class Connection(wireless_msgs.msg.Connection):
+class WirelessConnection(Connection):
     def __init__(self, fields):
         args = {}
 
@@ -48,7 +53,7 @@ class Connection(wireless_msgs.msg.Connection):
         args['noise_level'] = trim(fields.get('Noise level', "0"))
         args['essid'] = fields.get('ESSID', "").strip('"')
         args['bssid'] = fields.get('Access Point', "").strip()
-        args['frequency'] = trim(fields.get('Frequency', ""), float)
+        args['frequency'] = trim(fields.get('Frequency', "0.0"), float)
 
         try:
             args['link_quality_raw'] = fields['Link Quality']
@@ -57,46 +62,64 @@ class Connection(wireless_msgs.msg.Connection):
         except:
             pass
 
-        super(Connection, self).__init__(**args)
+        self.msg = Connection(**args)
 
 
-class Network(wireless_msgs.msg.Network):
+class WirelessNetwork(Network):
     def __init__(self, fields):
         args = {}
-        super(Network, self).__init__(**args)
+        self.msg = Network(**args)
 
 
 def main():
-    rospy.init_node('wireless_watcher')
+    rclpy.init()
 
-    hz = rospy.get_param('~hz', 1)
+    node = rclpy.create_node('wireless_watcher')
 
-    dev = rospy.get_param('~dev', None)
+    node.declare_parameter('hz', 1)
+    node.declare_parameter('dev', None)
+    node.declare_parameter('connected_topic', 'connected')
+    node.declare_parameter('connection_topic', 'connection')
+
+    hz = node.get_parameter('hz').value
+    dev = node.get_parameter('dev').value
+    connected_topic = node.get_parameter('connected_topic').value
+    connection_topic = node.get_parameter('connection_topic').value
+
     if not dev:
         wldevs = [d for d in os.listdir(SYS_NET_PATH) if d.startswith('wl') or d.startswith('wifi')]
         if wldevs:
             dev = wldevs[0]
         else:
-            rospy.logfatal("No wireless device found to monitor.")
+            node.get_logger().fatal('No wireless device found to monitor.')
             return 1
-    rospy.loginfo("Monitoring %s" % dev)
+
+    node.get_logger().info('Monitoring {0}'.format(dev))
 
     previous_error = False
     previous_success = False
-    r = rospy.Rate(hz)
 
-    connection_pub = rospy.Publisher('connection', Connection, queue_size=1)
-    connected_pub = rospy.Publisher('connected', std_msgs.msg.Bool, queue_size=1)
+    thread = threading.Thread(target=rclpy.spin, args=(node, ), daemon=True)
+    thread.start()
+
+    r = node.create_rate(hz)
+
+    connected_pub = node.create_publisher(std_msgs.msg.Bool, connected_topic, qos_profile_sensor_data)
+    connection_pub = node.create_publisher(Connection, connection_topic, qos_profile_sensor_data)
 
     # Disable this until we actually collect and publish the data.
-    # network_pub = rospy.Publisher('network', Network)
+    # network_pub = node.create_publisher(Network, 'network', qos_profile_sensor_data)
 
-    while not rospy.is_shutdown():
+    connected_msg = std_msgs.msg.Bool()
+
+    while rclpy.ok():
         try:
             with open(os.path.join(SYS_NET_PATH, dev, 'operstate'), 'rb') as f:
-                connected_pub.publish(f.read().strip() == b'up')
+                connected_msg.data = f.read().strip() == b'up'
         except FileNotFoundError:
-            connected_pub.publish(False)
+            connected_msg.data = False
+        finally:
+            connected_pub.publish(connected_msg)
 
         try:
             wifi_str = subprocess.check_output(['iwconfig', dev], stderr=subprocess.STDOUT).decode()
@@ -106,22 +129,20 @@ def main():
             fields_dict.update(dict([field for field in fields_list if len(field) == 2]))
 
             # Check if WiFi is connected to a network
-            connection_msg = {}
             if "Not-Associated" not in fields_dict['Access Point']:
-                connection_msg = Connection(fields_dict)
-
-            connection_pub.publish(connection_msg)
+                connection = WirelessConnection(fields_dict)
+                connection_pub.publish(connection.msg)
 
             if not previous_success:
                 previous_success = True
                 previous_error = False
-                rospy.loginfo("Retrieved status of interface %s. Now updating at %f Hz." % (dev, hz))
+                node.get_logger().info('Retrieved status of interface {0}. Now updating at {1} Hz.'.format(dev, hz))
 
         except subprocess.CalledProcessError:
             if not previous_error:
                 previous_error = True
                 previous_success = False
-                rospy.logerr("Error checking status of interface %s. Will try again at %f Hz." % (dev, hz))
+                node.get_logger().error('Error checking status of interface {0}. Will try again at {1} Hz.'.format(dev, hz))
 
         r.sleep()
     return 0
