@@ -5,6 +5,8 @@
   <version>0.1.2</version>
   <description>A Python-based node which publishes connection information about a linux wireless interface.</description>
 
+  <author>Mike Purvis</author>
+
   <maintainer email="rkreinin@clearpathrobotics.com">rkreinin</maintainer>
   <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
 
@@ -12,6 +14,7 @@
 
   <depend>rclpy</depend>
   <depend>wireless_msgs</depend>
+  <depend>wireless-tools</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

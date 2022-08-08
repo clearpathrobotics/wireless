@@ -5,6 +5,8 @@
   <version>0.1.2</version>
   <description>Messages for describing a wireless network such as bitrate, essid, and link quality.</description>
 
+  <author>Mike Purvis</author>
+
   <maintainer email="rkreinin@clearpathrobotics.com">Roni Kreinin</maintainer>
   <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
   
