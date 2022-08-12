@@ -1,16 +1,27 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>wireless_watcher</name>
   <version>0.1.2</version>
-  <description>A Python-based which publishes connection information about a linux wireless interface.</description>
+  <description>A Python-based node which publishes connection information about a linux wireless interface.</description>
 
-  <maintainer email="mpurvis@clearpath.ai">Mike Purvis</maintainer>
   <author>Mike Purvis</author>
+
+  <maintainer email="rkreinin@clearpathrobotics.com">rkreinin</maintainer>
+  <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
 
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>wireless_msgs</exec_depend>
-  <exec_depend>wireless-tools</exec_depend>
+  <depend>rclpy</depend>
+  <depend>wireless_msgs</depend>
+  <depend>wireless-tools</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
 </package>
