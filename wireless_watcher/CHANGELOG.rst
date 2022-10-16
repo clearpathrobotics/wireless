@@ -2,6 +2,14 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Minor fixes
+* Added previous changelogs
+* Updated wireless_msgs for ROS2.
+  Updated wireless_watcher for ROS2.
+* Contributors: Roni Kreinin
+
 0.1.2 (2021-11-30)
 ------------------
 * Add wireless-tools as a dependency (`#14 <https://github.com/clearpathrobotics/wireless/issues/14>`_)

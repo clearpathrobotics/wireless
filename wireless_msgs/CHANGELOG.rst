@@ -2,6 +2,13 @@
 Changelog for package wireless_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Minor fixes
+* Updated wireless_msgs for ROS2.
+  Updated wireless_watcher for ROS2.
+* Contributors: Roni Kreinin
+
 0.1.2 (2021-11-30)
 ------------------
 
