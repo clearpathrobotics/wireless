@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>wireless_watcher</name>
-  <version>0.1.2</version>
+  <version>1.0.0</version>
   <description>A Python-based node which publishes connection information about a linux wireless interface.</description>
 
   <author>Mike Purvis</author>

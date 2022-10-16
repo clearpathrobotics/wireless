@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2022-10-16)
+------------------
 * Minor fixes
 * Added previous changelogs
 * Updated wireless_msgs for ROS2.
