@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-05-01)
+------------------
 * [wireless_watcher] Switched to underscores to get rid of usage of dash-separated warning.
 * Contributors: Tony Baltovski
 
