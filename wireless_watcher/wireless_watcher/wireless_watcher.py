@@ -26,6 +26,7 @@
 import os
 import re
 import rclpy
+import time
 import threading
 import std_msgs.msg
 import subprocess
@@ -77,7 +78,7 @@ def main():
     node = rclpy.create_node('wireless_watcher')
 
     node.declare_parameter('hz', 1)
-    node.declare_parameter('dev', None)
+    node.declare_parameter('dev', '')
     node.declare_parameter('connected_topic', 'connected')
     node.declare_parameter('connection_topic', 'connection')
 
@@ -101,8 +102,6 @@ def main():
 
     thread = threading.Thread(target=rclpy.spin, args=(node, ), daemon=True)
     thread.start()
-
-    r = node.create_rate(hz)
 
     connected_pub = node.create_publisher(std_msgs.msg.Bool, connected_topic, qos_profile_sensor_data)
     connection_pub = node.create_publisher(Connection, connection_topic, qos_profile_sensor_data)
@@ -144,7 +143,9 @@ def main():
                 previous_success = False
                 node.get_logger().error('Error checking status of interface {0}. Will try again at {1} Hz.'.format(dev, hz))
 
-        r.sleep()
+        time.sleep(1.0 / hz)
+
+    thread.join()
     return 0
 
 
