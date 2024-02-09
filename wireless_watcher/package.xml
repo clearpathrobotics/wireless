@@ -3,7 +3,7 @@
 <package format="3">
   <name>wireless_watcher</name>
   <version>1.0.1</version>
-  <description>A Python-based node which publishes connection information about a linux wireless interface.</description>
+  <description>A node which publishes connection information about a linux wireless interface.</description>
 
   <author>Mike Purvis</author>
 
@@ -12,16 +12,11 @@
 
   <license>BSD</license>
 
-  <depend>rclpy</depend>
+  <depend>rclcpp</depend>
   <depend>wireless_msgs</depend>
   <depend>wireless-tools</depend>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
-
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
