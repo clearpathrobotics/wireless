@@ -31,7 +31,7 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 ARGUMENTS = [
-    DeclareLaunchArgument('hz', default_value='1',
+    DeclareLaunchArgument('hz', default_value='1.0',
                           description='Update frequency'),
     DeclareLaunchArgument('dev', default_value="''",
                           description='Wireless device'),
@@ -39,6 +39,8 @@ ARGUMENTS = [
                           description='Connected status topic'),
     DeclareLaunchArgument('connection_topic', default_value='connection',
                           description='Connection information topic'),
+    DeclareLaunchArgument('namespace', default_value='',
+                          description='Namespace'),
 ]
 
 
@@ -48,6 +50,7 @@ def generate_launch_description():
             package='wireless_watcher',
             executable='wireless_watcher',
             name='wireless_watcher',
+            namespace=LaunchConfiguration('namespace'),
             output='screen',
             parameters=[{
                'hz': LaunchConfiguration('hz'),
