@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.0 (2024-03-06)
+------------------
 * License
 * Reimplemented in C++
 * Use time.sleep instead of rate.sleep to properly exit loop on external shutdown
