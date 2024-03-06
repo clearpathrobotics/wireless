@@ -2,6 +2,14 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* License
+* Reimplemented in C++
+* Use time.sleep instead of rate.sleep to properly exit loop on external shutdown
+  Default 'dev' parameter to empty string rather than None
+* Contributors: Roni Kreinin
+
 1.0.1 (2023-05-01)
 ------------------
 * [wireless_watcher] Switched to underscores to get rid of usage of dash-separated warning.
