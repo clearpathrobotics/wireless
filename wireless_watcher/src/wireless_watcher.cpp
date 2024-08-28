@@ -41,6 +41,7 @@
 #include <chrono>
 #include <thread>
 #include <unordered_map>
+#include <limits>
 #include <memory>
 #include <cstdio>
 #include <dirent.h>
@@ -127,7 +128,7 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
             }
             catch(std::invalid_argument)
             {
-                connection_msg.bitrate = 0.0;
+                connection_msg.bitrate = std::numeric_limits<float>::quiet_NaN();
             }
 
             connection_msg.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
@@ -144,7 +145,7 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
             }
             catch(std::invalid_argument)
             {
-                connection_msg.frequency = 0.0;
+                connection_msg.frequency = std::numeric_limits<float>::quiet_NaN();
             }
 
             connection_msg.bssid = fields_dict["Access Point"];
