@@ -41,6 +41,7 @@
 #include <chrono>
 #include <thread>
 #include <unordered_map>
+#include <limits>
 #include <memory>
 #include <cstdio>
 #include <dirent.h>
@@ -107,7 +108,7 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
 
         std::string iwconfig_output = exec_cmd("iwconfig " + dev);
         std::vector<std::string> fields_str = split(iwconfig_output, "\\s\\s+");
-        
+
         std::unordered_map<std::string, std::string> fields_dict;
         fields_dict["dev"] = fields_str[0];
         fields_dict["type"] = fields_str[1];
@@ -121,31 +122,47 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
         }
 
         if (fields_dict["Access Point"].find("Not-Associated") == std::string::npos) {
-          connection_msg.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
-          connection_msg.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
-          connection_msg.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
+            try
+            {
+                connection_msg.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
+            }
+            catch(std::invalid_argument)
+            {
+                connection_msg.bitrate = std::numeric_limits<float>::quiet_NaN();
+            }
 
-          // Strip quotations from ESSID
-          std::string essid = fields_dict["ESSID"];
-          essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
-          connection_msg.essid = essid;
-      
-          connection_msg.bssid = fields_dict["Access Point"];
-          connection_msg.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
+            connection_msg.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
+            connection_msg.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
 
-          // Calculate link_quality from Link Quality
-          std::string link_quality_str = fields_dict["Link Quality"];
-          connection_msg.link_quality_raw = link_quality_str;
-          size_t delimiter_pos = link_quality_str.find("/");
-          if (delimiter_pos != std::string::npos) {
-              int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
-              int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
-              connection_msg.link_quality = static_cast<float>(num) / den;
-          }
+            // Strip quotations from ESSID
+            std::string essid = fields_dict["ESSID"];
+            essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
+            connection_msg.essid = essid;
 
-          connection_pub_->publish(connection_msg);
+            try
+            {
+                connection_msg.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
+            }
+            catch(std::invalid_argument)
+            {
+                connection_msg.frequency = std::numeric_limits<float>::quiet_NaN();
+            }
+
+            connection_msg.bssid = fields_dict["Access Point"];
+
+            // Calculate link_quality from Link Quality
+            std::string link_quality_str = fields_dict["Link Quality"];
+            connection_msg.link_quality_raw = link_quality_str;
+            size_t delimiter_pos = link_quality_str.find("/");
+            if (delimiter_pos != std::string::npos) {
+                int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
+                int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
+                connection_msg.link_quality = static_cast<float>(num) / den;
+            }
+
+            connection_pub_->publish(connection_msg);
         }
-      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)));
     }
 }
 
