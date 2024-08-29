@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2024-08-29)
+------------------
 * Set NaN when empty BitRate/Frequency
 * Add try-catch to BitRate and Frequency field
 * Contributors: Luis Camero
