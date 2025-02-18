@@ -100,11 +100,11 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
             std::ifstream operstate_file(operstate_filepath.c_str());
             std::string operstate;
             operstate_file >> operstate;
-            connected_msg.data = operstate == "up";
+            connected_msg_.data = operstate == "up";
         } catch (const std::exception& e) {
-            connected_msg.data = false;
+            connected_msg_.data = false;
         }
-        connected_pub_->publish(connected_msg);
+        connected_pub_->publish(connected_msg_);
 
         std::string iwconfig_output = exec_cmd("iwconfig " + dev);
         std::vector<std::string> fields_str = split(iwconfig_output, "\\s\\s+");
@@ -124,43 +124,43 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
         if (fields_dict["Access Point"].find("Not-Associated") == std::string::npos) {
             try
             {
-                connection_msg.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
+                connection_msg_.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
             }
             catch(std::invalid_argument)
             {
-                connection_msg.bitrate = std::numeric_limits<float>::quiet_NaN();
+                connection_msg_.bitrate = std::numeric_limits<float>::quiet_NaN();
             }
 
-            connection_msg.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
-            connection_msg.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
+            connection_msg_.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
+            connection_msg_.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
 
             // Strip quotations from ESSID
             std::string essid = fields_dict["ESSID"];
             essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
-            connection_msg.essid = essid;
+            connection_msg_.essid = essid;
 
             try
             {
-                connection_msg.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
+                connection_msg_.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
             }
             catch(std::invalid_argument)
             {
-                connection_msg.frequency = std::numeric_limits<float>::quiet_NaN();
+                connection_msg_.frequency = std::numeric_limits<float>::quiet_NaN();
             }
 
-            connection_msg.bssid = fields_dict["Access Point"];
+            connection_msg_.bssid = fields_dict["Access Point"];
 
             // Calculate link_quality from Link Quality
             std::string link_quality_str = fields_dict["Link Quality"];
-            connection_msg.link_quality_raw = link_quality_str;
+            connection_msg_.link_quality_raw = link_quality_str;
             size_t delimiter_pos = link_quality_str.find("/");
             if (delimiter_pos != std::string::npos) {
                 int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
                 int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
-                connection_msg.link_quality = static_cast<float>(num) / den;
+                connection_msg_.link_quality = static_cast<float>(num) / den;
             }
 
-            connection_pub_->publish(connection_msg);
+            connection_pub_->publish(connection_msg_);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)));
     }
