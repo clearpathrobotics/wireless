@@ -46,12 +46,14 @@
 #include <cstdio>
 #include <dirent.h>
 
+#include "diagnostic_updater/diagnostic_updater.hpp"
+
 #include "wireless_watcher/wireless_watcher.hpp"
 
 using namespace std::chrono_literals;
 
 
-WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
+WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher"), updater_(this) {
     this->declare_parameter("hz", 1.0);
     this->declare_parameter("dev", "");
     this->declare_parameter("connected_topic", "connected");
@@ -93,6 +95,8 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)), std::bind(&WirelessWatcher::timer_callback, this));
 
+    updater_.setHardwareID("none");
+    updater_.add("Wi-Fi Monitor", this, &WirelessWatcher::diagnostic);
 }
 
 void WirelessWatcher::timer_callback() {
@@ -190,6 +194,36 @@ std::vector<std::string> WirelessWatcher::split(const std::string& s, const std:
     std::sregex_token_iterator it(s.begin(), s.end(), regex, -1);
     std::vector<std::string> tokens{it, {}};
     return tokens;
+}
+
+
+void WirelessWatcher::diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat) {
+    stat.add("Wireless Network Interface", dev);
+    stat.add("Wi-Fi Connected", connected_msg_.data ? "True" : "False");
+
+    if (!connected_msg_.data) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN, "%s Disconnected", dev.c_str());
+        return;
+    }
+
+    stat.add("Frequency (GHz)", connection_msg_.frequency);
+    stat.add("ESSID", connection_msg_.essid);
+    stat.add("BSSID", connection_msg_.bssid);
+    stat.add("Transmit Power (dBm)", connection_msg_.txpower);
+    stat.add("Theoretical Max Bitrate (Mbps)", connection_msg_.bitrate);
+    stat.add("Link Quality Raw", connection_msg_.link_quality_raw);
+    stat.addf("Link Quality (%)", "%.1f", connection_msg_.link_quality * 100);
+    stat.add("Signal Strength (dBm)", connection_msg_.signal_level);
+
+    if (connection_msg_.signal_level < SIGNAL_STRENGTH_VERY_WEAK) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+                      "Very Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
+    } else if (connection_msg_.signal_level < SIGNAL_STRENGTH_WEAK) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+                      "Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
+    } else {
+        stat.summary(diagnostic_updater::DiagnosticStatusWrapper::OK, "OK");
+    }
 }
 
 
