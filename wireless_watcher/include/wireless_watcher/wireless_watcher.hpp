@@ -51,17 +51,21 @@ public:
     WirelessWatcher();
 
 private:
+    // Parameters
     double hz;
     std::string dev;
     std::string connected_topic;
     std::string connection_topic;
 
-
+    // Other Variables
+    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr connected_pub_;
     rclcpp::Publisher<wireless_msgs::msg::Connection>::SharedPtr connection_pub_;
     std_msgs::msg::Bool connected_msg_;
     wireless_msgs::msg::Connection connection_msg_;
 
+    // Methods
+    void timer_callback();
     std::string exec_cmd(const std::string& cmd);
     std::vector<std::string> split(const std::string& s, const std::string& delimiter);
 };
