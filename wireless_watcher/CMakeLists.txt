@@ -3,6 +3,7 @@ project(wireless_watcher)
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(wireless_msgs REQUIRED)
@@ -18,6 +19,7 @@ target_include_directories(
 
 # Link against ROS 2 libraries
 ament_target_dependencies(wireless_watcher
+  diagnostic_updater
   rclcpp
   std_msgs
   wireless_msgs

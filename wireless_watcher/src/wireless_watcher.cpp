@@ -46,12 +46,14 @@
 #include <cstdio>
 #include <dirent.h>
 
+#include "diagnostic_updater/diagnostic_updater.hpp"
+
 #include "wireless_watcher/wireless_watcher.hpp"
 
 using namespace std::chrono_literals;
 
 
-WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
+WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher"), updater_(this) {
     this->declare_parameter("hz", 1.0);
     this->declare_parameter("dev", "");
     this->declare_parameter("connected_topic", "connected");
@@ -91,78 +93,86 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher") {
     connected_pub_ = this->create_publisher<std_msgs::msg::Bool>(connected_topic, rclcpp::SensorDataQoS());
     connection_pub_ = this->create_publisher<wireless_msgs::msg::Connection>(connection_topic, rclcpp::SensorDataQoS());
 
-    while (rclcpp::ok()) {
-        try {
-            std::string operstate_filepath = std::string(SYS_NET_PATH);
-            operstate_filepath += "/";
-            operstate_filepath += dev;
-            operstate_filepath += "/operstate";
-            std::ifstream operstate_file(operstate_filepath.c_str());
-            std::string operstate;
-            operstate_file >> operstate;
-            connected_msg.data = operstate == "up";
-        } catch (const std::exception& e) {
-            connected_msg.data = false;
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)), std::bind(&WirelessWatcher::timer_callback, this));
+
+    updater_.setHardwareID("none");
+    updater_.add("Wi-Fi Monitor", this, &WirelessWatcher::diagnostic);
+}
+
+void WirelessWatcher::timer_callback() {
+    try {
+        std::string operstate_filepath = std::string(SYS_NET_PATH);
+        operstate_filepath += "/";
+        operstate_filepath += dev;
+        operstate_filepath += "/operstate";
+        std::ifstream operstate_file(operstate_filepath.c_str());
+        std::string operstate;
+        operstate_file >> operstate;
+        connected_msg_.data = operstate == "up";
+    } catch (const std::exception& e) {
+        connected_msg_.data = false;
+    }
+    connected_pub_->publish(connected_msg_);
+
+    if (!connected_msg_.data) {
+        return;
+    }
+
+    std::string iwconfig_output = exec_cmd("iwconfig " + dev);
+    std::vector<std::string> fields_str = split(iwconfig_output, "\\s\\s+");
+
+    std::unordered_map<std::string, std::string> fields_dict;
+    fields_dict["dev"] = fields_str[0];
+    fields_dict["type"] = fields_str[1];
+    fields_dict["Access Point"] = split(fields_str[5], " ").back();
+
+    for (size_t i = 2; i < fields_str.size(); ++i) {
+        std::vector<std::string> field = split(fields_str[i], "[:=]");
+        if (field.size() == 2) {
+            fields_dict[field[0]] = field[1];
         }
-        connected_pub_->publish(connected_msg);
+    }
 
-        std::string iwconfig_output = exec_cmd("iwconfig " + dev);
-        std::vector<std::string> fields_str = split(iwconfig_output, "\\s\\s+");
-
-        std::unordered_map<std::string, std::string> fields_dict;
-        fields_dict["dev"] = fields_str[0];
-        fields_dict["type"] = fields_str[1];
-        fields_dict["Access Point"] = split(fields_str[5], " ").back();
-
-        for (size_t i = 2; i < fields_str.size(); ++i) {
-            std::vector<std::string> field = split(fields_str[i], "[:=]");
-            if (field.size() == 2) {
-                fields_dict[field[0]] = field[1];
-            }
+    if (fields_dict["Access Point"].find("Not-Associated") == std::string::npos) {
+        try
+        {
+            connection_msg_.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
+        }
+        catch(std::invalid_argument)
+        {
+            connection_msg_.bitrate = std::numeric_limits<float>::quiet_NaN();
         }
 
-        if (fields_dict["Access Point"].find("Not-Associated") == std::string::npos) {
-            try
-            {
-                connection_msg.bitrate = std::stof(split(fields_dict["Bit Rate"], " ")[0]);
-            }
-            catch(std::invalid_argument)
-            {
-                connection_msg.bitrate = std::numeric_limits<float>::quiet_NaN();
-            }
+        connection_msg_.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
+        connection_msg_.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
 
-            connection_msg.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
-            connection_msg.signal_level = std::stoi(split(fields_dict["Signal level"], " ")[0]);
+        // Strip quotations from ESSID
+        std::string essid = fields_dict["ESSID"];
+        essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
+        connection_msg_.essid = essid;
 
-            // Strip quotations from ESSID
-            std::string essid = fields_dict["ESSID"];
-            essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
-            connection_msg.essid = essid;
-
-            try
-            {
-                connection_msg.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
-            }
-            catch(std::invalid_argument)
-            {
-                connection_msg.frequency = std::numeric_limits<float>::quiet_NaN();
-            }
-
-            connection_msg.bssid = fields_dict["Access Point"];
-
-            // Calculate link_quality from Link Quality
-            std::string link_quality_str = fields_dict["Link Quality"];
-            connection_msg.link_quality_raw = link_quality_str;
-            size_t delimiter_pos = link_quality_str.find("/");
-            if (delimiter_pos != std::string::npos) {
-                int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
-                int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
-                connection_msg.link_quality = static_cast<float>(num) / den;
-            }
-
-            connection_pub_->publish(connection_msg);
+        try
+        {
+            connection_msg_.frequency = std::stof(split(fields_dict["Frequency"], " ")[0]);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)));
+        catch(std::invalid_argument)
+        {
+            connection_msg_.frequency = std::numeric_limits<float>::quiet_NaN();
+        }
+
+        connection_msg_.bssid = fields_dict["Access Point"];
+
+        // Calculate link_quality from Link Quality
+        std::string link_quality_str = fields_dict["Link Quality"];
+        connection_msg_.link_quality_raw = link_quality_str;
+        size_t delimiter_pos = link_quality_str.find("/");
+        if (delimiter_pos != std::string::npos) {
+            int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
+            int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
+            connection_msg_.link_quality = static_cast<float>(num) / den;
+        }
+
+        connection_pub_->publish(connection_msg_);
     }
 }
 
@@ -184,6 +194,36 @@ std::vector<std::string> WirelessWatcher::split(const std::string& s, const std:
     std::sregex_token_iterator it(s.begin(), s.end(), regex, -1);
     std::vector<std::string> tokens{it, {}};
     return tokens;
+}
+
+
+void WirelessWatcher::diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat) {
+    stat.add("Wireless Network Interface", dev);
+    stat.add("Wi-Fi Connected", connected_msg_.data ? "True" : "False");
+
+    if (!connected_msg_.data) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN, "%s Disconnected", dev.c_str());
+        return;
+    }
+
+    stat.add("Frequency (GHz)", connection_msg_.frequency);
+    stat.add("ESSID", connection_msg_.essid);
+    stat.add("BSSID", connection_msg_.bssid);
+    stat.add("Transmit Power (dBm)", connection_msg_.txpower);
+    stat.add("Theoretical Max Bitrate (Mbps)", connection_msg_.bitrate);
+    stat.add("Link Quality Raw", connection_msg_.link_quality_raw);
+    stat.addf("Link Quality (%)", "%.1f", connection_msg_.link_quality * 100);
+    stat.add("Signal Strength (dBm)", connection_msg_.signal_level);
+
+    if (connection_msg_.signal_level < SIGNAL_STRENGTH_VERY_WEAK) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+                      "Very Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
+    } else if (connection_msg_.signal_level < SIGNAL_STRENGTH_WEAK) {
+        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+                      "Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
+    } else {
+        stat.summary(diagnostic_updater::DiagnosticStatusWrapper::OK, "OK");
+    }
 }
 
 

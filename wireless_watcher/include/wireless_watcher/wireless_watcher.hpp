@@ -45,25 +45,33 @@
 #include "wireless_msgs/msg/network.hpp"
 
 #define SYS_NET_PATH "/sys/class/net"
+#define SIGNAL_STRENGTH_WEAK -67
+#define SIGNAL_STRENGTH_VERY_WEAK -75
 
 class WirelessWatcher : public rclcpp::Node {
 public:
     WirelessWatcher();
 
 private:
+    // Parameters
     double hz;
     std::string dev;
     std::string connected_topic;
     std::string connection_topic;
 
-
+    // Other Variables
+    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr connected_pub_;
     rclcpp::Publisher<wireless_msgs::msg::Connection>::SharedPtr connection_pub_;
-    std_msgs::msg::Bool connected_msg;
-    wireless_msgs::msg::Connection connection_msg;
+    std_msgs::msg::Bool connected_msg_;
+    wireless_msgs::msg::Connection connection_msg_;
+    diagnostic_updater::Updater updater_;
 
+    // Methods
+    void timer_callback();
     std::string exec_cmd(const std::string& cmd);
     std::vector<std::string> split(const std::string& s, const std::string& delimiter);
+    void diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
 };
 
 #endif  // WIRELESS_WATCHER_HPP
