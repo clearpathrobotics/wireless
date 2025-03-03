@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.3 (2025-03-03)
+------------------
 * demark private variables with underscore
 * Run loop using a timer callback
 * Add Wi-Fi diagnostics
