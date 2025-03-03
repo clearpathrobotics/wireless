@@ -2,6 +2,13 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* demark private variables with underscore
+* Run loop using a timer callback
+* Add Wi-Fi diagnostics
+* Contributors: Hilary Luo
+
 1.1.2 (2024-12-11)
 ------------------
 * Define static type in template (`#21 <https://github.com/clearpathrobotics/wireless/issues/21>`_)
