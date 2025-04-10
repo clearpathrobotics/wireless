@@ -72,6 +72,7 @@ private:
     std::string exec_cmd(const std::string& cmd);
     std::vector<std::string> split(const std::string& s, const std::string& delimiter);
     void diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
+    void ip_address_diag(std::string dev, diagnostic_updater::DiagnosticStatusWrapper & stat);
 };
 
 #endif  // WIRELESS_WATCHER_HPP

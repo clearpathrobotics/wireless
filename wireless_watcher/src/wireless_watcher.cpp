@@ -45,6 +45,8 @@
 #include <memory>
 #include <cstdio>
 #include <dirent.h>
+#include <ifaddrs.h>
+#include <arpa/inet.h>
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 
@@ -95,7 +97,7 @@ WirelessWatcher::WirelessWatcher() : rclcpp::Node("wireless_watcher"), updater_(
 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(static_cast<int>(1000.0 / hz)), std::bind(&WirelessWatcher::timer_callback, this));
 
-    updater_.setHardwareID("none");
+    updater_.setHardwareID(dev);
     updater_.add("Wi-Fi Monitor", this, &WirelessWatcher::diagnostic);
 }
 
@@ -205,7 +207,9 @@ void WirelessWatcher::diagnostic(diagnostic_updater::DiagnosticStatusWrapper & s
         stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN, "%s Disconnected", dev.c_str());
         return;
     }
+    stat.summary(diagnostic_updater::DiagnosticStatusWrapper::OK, "OK");
 
+    ip_address_diag(dev, stat);
     stat.add("Frequency (GHz)", connection_msg_.frequency);
     stat.add("ESSID", connection_msg_.essid);
     stat.add("BSSID", connection_msg_.bssid);
@@ -216,16 +220,69 @@ void WirelessWatcher::diagnostic(diagnostic_updater::DiagnosticStatusWrapper & s
     stat.add("Signal Strength (dBm)", connection_msg_.signal_level);
 
     if (connection_msg_.signal_level < SIGNAL_STRENGTH_VERY_WEAK) {
-        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+        stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
                       "Very Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
     } else if (connection_msg_.signal_level < SIGNAL_STRENGTH_WEAK) {
-        stat.summaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+        stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
                       "Poor Signal Strength (%d dBm)", connection_msg_.signal_level);
-    } else {
-        stat.summary(diagnostic_updater::DiagnosticStatusWrapper::OK, "OK");
     }
 }
 
+void WirelessWatcher::ip_address_diag(
+    std::string dev, diagnostic_updater::DiagnosticStatusWrapper & stat) {
+
+    struct ifaddrs *ptr_ifaddrs = nullptr, *entry;
+
+    if (getifaddrs(&ptr_ifaddrs) == 0) {
+        for (entry = ptr_ifaddrs; entry != nullptr; entry = entry->ifa_next) {
+            // Find the requested interface and ensure it has an address
+            if (std::string(entry->ifa_name) != dev || entry->ifa_addr == nullptr) {
+                continue;
+            }
+
+            sa_family_t address_family = entry->ifa_addr->sa_family;
+            // Skip if the address is not IPv4
+            if (address_family != AF_INET) {
+                continue;
+            }
+            char buffer[INET_ADDRSTRLEN] = {};
+            inet_ntop(
+                address_family,
+                &((struct sockaddr_in*)(entry->ifa_addr))->sin_addr,
+                buffer,
+                INET_ADDRSTRLEN
+            );
+
+            stat.add("IP Address", std::string(buffer));
+
+            if (entry->ifa_netmask != nullptr) {
+                char buffer[INET_ADDRSTRLEN] = {0, };
+                inet_ntop(
+                    address_family,
+                    &((struct sockaddr_in*)(entry->ifa_netmask))->sin_addr,
+                    buffer,
+                    INET_ADDRSTRLEN
+                );
+
+                stat.add("Netmask", std::string(buffer));
+            } else {
+                stat.add("Netmask", "Not found");
+            }
+
+            freeifaddrs(ptr_ifaddrs);
+            return;
+        }
+    }
+    stat.mergeSummaryf(diagnostic_updater::DiagnosticStatusWrapper::WARN,
+                  "Failed to get IP addresses for %s", dev.c_str());
+    stat.add("IP Address", "Not found");
+    stat.add("Netmask", "Not found");
+
+    if (ptr_ifaddrs != nullptr) {
+        freeifaddrs(ptr_ifaddrs);
+    }
+    return;
+}
 
 int main(int argc, char * argv[]) {
     rclcpp::init(argc, argv);
