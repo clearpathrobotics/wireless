@@ -31,34 +31,35 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 ARGUMENTS = [
-    DeclareLaunchArgument('hz', default_value='1.0',
-                          description='Update frequency'),
-    DeclareLaunchArgument('dev', default_value="''",
-                          description='Wireless device'),
-    DeclareLaunchArgument('connected_topic', default_value='connected',
-                          description='Connected status topic'),
-    DeclareLaunchArgument('connection_topic', default_value='connection',
-                          description='Connection information topic'),
-    DeclareLaunchArgument('namespace', default_value='',
-                          description='Namespace'),
+    DeclareLaunchArgument("hz", default_value="1.0", description="Update frequency"),
+    DeclareLaunchArgument("dev", default_value="''", description="Wireless device"),
+    DeclareLaunchArgument(
+        "connected_topic", default_value="connected", description="Connected status topic"
+    ),
+    DeclareLaunchArgument(
+        "connection_topic", default_value="connection", description="Connection information topic"
+    ),
+    DeclareLaunchArgument("namespace", default_value="", description="Namespace"),
 ]
 
 
 def generate_launch_description():
 
     watcher = Node(
-            package='wireless_watcher',
-            executable='wireless_watcher',
-            name='wireless_watcher',
-            namespace=LaunchConfiguration('namespace'),
-            output='screen',
-            parameters=[{
-               'hz': LaunchConfiguration('hz'),
-               'dev': LaunchConfiguration('dev'),
-               'connected_topic': LaunchConfiguration('connected_topic'),
-               'connection_topic': LaunchConfiguration('connection_topic')
-            }],
-        )
+        package="wireless_watcher",
+        executable="wireless_watcher",
+        name="wireless_watcher",
+        namespace=LaunchConfiguration("namespace"),
+        output="screen",
+        parameters=[
+            {
+                "hz": LaunchConfiguration("hz"),
+                "dev": LaunchConfiguration("dev"),
+                "connected_topic": LaunchConfiguration("connected_topic"),
+                "connection_topic": LaunchConfiguration("connection_topic"),
+            }
+        ],
+    )
 
     ld = LaunchDescription(ARGUMENTS)
     ld.add_action(watcher)
