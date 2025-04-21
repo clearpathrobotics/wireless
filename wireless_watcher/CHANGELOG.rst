@@ -2,6 +2,11 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add IP address info in diagnostic (`#23 <https://github.com/clearpathrobotics/wireless/issues/23>`_)
+* Contributors: Hilary Luo
+
 1.1.3 (2025-03-03)
 ------------------
 * demark private variables with underscore
