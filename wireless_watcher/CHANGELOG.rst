@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.4 (2025-04-21)
+------------------
 * Add IP address info in diagnostic (`#23 <https://github.com/clearpathrobotics/wireless/issues/23>`_)
 * Contributors: Hilary Luo
 
