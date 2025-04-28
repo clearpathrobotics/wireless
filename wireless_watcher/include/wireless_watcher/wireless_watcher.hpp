@@ -33,12 +33,13 @@
  *
  */
 
-#ifndef WIRELESS_WATCHER_HPP
-#define WIRELESS_WATCHER_HPP
+#ifndef WIRELESS_WATCHER__WIRELESS_WATCHER_HPP_
+#define WIRELESS_WATCHER__WIRELESS_WATCHER_HPP_
 
 #include <string>
 #include <vector>
 
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "wireless_msgs/msg/connection.hpp"
@@ -48,31 +49,32 @@
 #define SIGNAL_STRENGTH_WEAK -67
 #define SIGNAL_STRENGTH_VERY_WEAK -75
 
-class WirelessWatcher : public rclcpp::Node {
+class WirelessWatcher : public rclcpp::Node
+{
 public:
-    WirelessWatcher();
+  WirelessWatcher();
 
 private:
-    // Parameters
-    double hz;
-    std::string dev;
-    std::string connected_topic;
-    std::string connection_topic;
+  // Parameters
+  double hz;
+  std::string dev;
+  std::string connected_topic;
+  std::string connection_topic;
 
-    // Other Variables
-    rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr connected_pub_;
-    rclcpp::Publisher<wireless_msgs::msg::Connection>::SharedPtr connection_pub_;
-    std_msgs::msg::Bool connected_msg_;
-    wireless_msgs::msg::Connection connection_msg_;
-    diagnostic_updater::Updater updater_;
+  // Other Variables
+  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr connected_pub_;
+  rclcpp::Publisher<wireless_msgs::msg::Connection>::SharedPtr connection_pub_;
+  std_msgs::msg::Bool connected_msg_;
+  wireless_msgs::msg::Connection connection_msg_;
+  diagnostic_updater::Updater updater_;
 
-    // Methods
-    void timer_callback();
-    std::string exec_cmd(const std::string& cmd);
-    std::vector<std::string> split(const std::string& s, const std::string& delimiter);
-    void diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
-    void ip_address_diag(std::string dev, diagnostic_updater::DiagnosticStatusWrapper & stat);
+  // Methods
+  void timer_callback();
+  std::string exec_cmd(const std::string& cmd);
+  std::vector<std::string> split(const std::string& s, const std::string& delimiter);
+  void diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void ip_address_diag(std::string dev, diagnostic_updater::DiagnosticStatusWrapper & stat);
 };
 
-#endif  // WIRELESS_WATCHER_HPP
+#endif  // WIRELESS_WATCHER__WIRELESS_WATCHER_HPP_

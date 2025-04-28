@@ -5,12 +5,12 @@
   <version>1.1.4</version>
   <description>Messages for describing a wireless network such as bitrate, essid, and link quality.</description>
 
-  <author>Mike Purvis</author>
-
   <maintainer email="rkreinin@clearpathrobotics.com">Roni Kreinin</maintainer>
   <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
-  
+
   <license>BSD</license>
+
+  <author email="mpurvis@clearpathrobotics.com">Mike Purvis</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
