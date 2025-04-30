@@ -2,6 +2,11 @@
 Changelog for package wireless_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added Github codeowners, issue template, CI.  Also, fixed linting. (`#24 <https://github.com/clearpathrobotics/wireless/issues/24>`_)
+* Contributors: Tony Baltovski
+
 1.1.4 (2025-04-21)
 ------------------
 
