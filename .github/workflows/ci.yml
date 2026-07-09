@@ -25,7 +25,7 @@ jobs:
             python3 \
             python3-pip \
             python3-venv
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Mark safe repository
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -52,7 +52,7 @@ jobs:
             ubuntu: ubuntu-24.04
     runs-on: ${{ matrix.ubuntu }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ matrix.ros_distro }}
@@ -74,7 +74,7 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_REPO: ${{ matrix.env.ROS_REPO }}
@@ -83,7 +83,7 @@ jobs:
     name: Humble Clearpath Release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
@@ -103,7 +103,7 @@ jobs:
     name: Humble Clearpath Source
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
@@ -123,7 +123,7 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_REPO: ${{ matrix.env.ROS_REPO }}
@@ -132,7 +132,7 @@ jobs:
     name: Jazzy Clearpath Release
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
@@ -152,7 +152,7 @@ jobs:
     name: Jazzy Clearpath Source
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
