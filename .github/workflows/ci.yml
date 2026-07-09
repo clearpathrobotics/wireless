@@ -6,7 +6,64 @@ on:
   schedule:
     - cron: "0 0 * * *" # every day at midnight
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
+  pre-commit:
+    name: Pre-commit
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git \
+            python3 \
+            python3-pip \
+            python3-venv
+      - uses: actions/checkout@v4
+      - name: Mark safe repository
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Setup virtual environment
+        run: |
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install --upgrade pip
+          pip install pre-commit
+      - name: Run pre-commit
+        run: |
+          . venv/bin/activate
+          pre-commit run --all-files
+
+  lint:
+    name: Lint (${{ matrix.ros_distro }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ros_distro: humble
+            ubuntu: ubuntu-22.04
+          - ros_distro: jazzy
+            ubuntu: ubuntu-24.04
+    runs-on: ${{ matrix.ubuntu }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: ${{ matrix.ros_distro }}
+      - name: Lint packages
+        shell: bash
+        run: |
+          source /opt/ros/${{ matrix.ros_distro }}/setup.bash
+          colcon build --event-handlers console_direct+ --packages-select wireless_msgs wireless_watcher
+          colcon test --event-handlers console_direct+ --packages-select wireless_msgs wireless_watcher
+          colcon test-result --verbose
+
   wireless_watcher_osrf_industrial_ci_humble:
     name: Humble OSRF Industrial
     strategy:
@@ -17,14 +74,16 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: 'ros-industrial/industrial_ci@master'
-        env: ${{matrix.env}}
+        env:
+          ROS_REPO: ${{ matrix.env.ROS_REPO }}
+          ROS_DISTRO: ${{ matrix.env.ROS_DISTRO }}
   wireless_watcher_cpr_ci_humble:
     name: Humble Clearpath Release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
@@ -44,7 +103,7 @@ jobs:
     name: Humble Clearpath Source
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
@@ -64,14 +123,16 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: 'ros-industrial/industrial_ci@master'
-        env: ${{matrix.env}}
+        env:
+          ROS_REPO: ${{ matrix.env.ROS_REPO }}
+          ROS_DISTRO: ${{ matrix.env.ROS_DISTRO }}
   wireless_watcher_cpr_ci_jazzy:
     name: Jazzy Clearpath Release
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
@@ -91,7 +152,7 @@ jobs:
     name: Jazzy Clearpath Source
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy

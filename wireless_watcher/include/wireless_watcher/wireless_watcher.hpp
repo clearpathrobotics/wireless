@@ -18,10 +18,10 @@
  *       names of its contributors may be used to endorse or promote products
  *       derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL CLEARPATH ROBOTICS, INC. BE LIABLE FOR ANY
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL CLEARPATH ROBOTICS, INC. BE LIABLE FOR ANY
  * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -49,8 +49,7 @@
 #define SIGNAL_STRENGTH_WEAK -67
 #define SIGNAL_STRENGTH_VERY_WEAK -75
 
-class WirelessWatcher : public rclcpp::Node
-{
+class WirelessWatcher : public rclcpp::Node {
 public:
   WirelessWatcher();
 
@@ -71,10 +70,12 @@ private:
 
   // Methods
   void timer_callback();
-  std::string exec_cmd(const std::string& cmd);
-  std::vector<std::string> split(const std::string& s, const std::string& delimiter);
-  void diagnostic(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void ip_address_diag(std::string dev, diagnostic_updater::DiagnosticStatusWrapper & stat);
+  std::string exec_cmd(const std::string &cmd);
+  std::vector<std::string> split(const std::string &s,
+                                 const std::string &delimiter);
+  void diagnostic(diagnostic_updater::DiagnosticStatusWrapper &stat);
+  void ip_address_diag(std::string dev,
+                       diagnostic_updater::DiagnosticStatusWrapper &stat);
 };
 
-#endif  // WIRELESS_WATCHER__WIRELESS_WATCHER_HPP_
+#endif // WIRELESS_WATCHER__WIRELESS_WATCHER_HPP_

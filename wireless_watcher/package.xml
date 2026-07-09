@@ -4,7 +4,7 @@
   <name>wireless_watcher</name>
   <version>1.1.5</version>
   <description>A node which publishes connection information about a linux wireless interface.</description>
-  
+
   <maintainer email="rkreinin@clearpathrobotics.com">Roni Kreinin</maintainer>
   <maintainer email="tbaltovski@clearpathrobotics.com">Tony Baltovski</maintainer>
 
