@@ -40,30 +40,6 @@ jobs:
           . venv/bin/activate
           pre-commit run --all-files
 
-  lint:
-    name: Lint (${{ matrix.ros_distro }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ros_distro: humble
-            ubuntu: ubuntu-22.04
-          - ros_distro: jazzy
-            ubuntu: ubuntu-24.04
-    runs-on: ${{ matrix.ubuntu }}
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: ${{ matrix.ros_distro }}
-      - name: Lint packages
-        shell: bash
-        run: |
-          source /opt/ros/${{ matrix.ros_distro }}/setup.bash
-          colcon build --event-handlers console_direct+ --packages-select wireless_msgs wireless_watcher
-          colcon test --event-handlers console_direct+ --packages-select wireless_msgs wireless_watcher
-          colcon test-result --verbose
-
   wireless_watcher_osrf_industrial_ci_humble:
     name: Humble OSRF Industrial
     strategy:
