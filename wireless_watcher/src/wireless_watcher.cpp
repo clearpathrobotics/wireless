@@ -128,15 +128,15 @@ void WirelessWatcher::timer_callback() {
 
   std::string iw_link = exec_cmd("iw dev " + dev + " link 2>/dev/null");
 
-  if (iw_link.find("Not connected") != std::string::npos || iw_link.empty())
-  {
+  if (iw_link.find("Not connected") != std::string::npos || iw_link.empty()) {
     return;
   }
 
   std::smatch m;
 
   // BSSID: "Connected to xx:xx:xx:xx:xx:xx (on wlan0)"
-  if (std::regex_search(iw_link, m, std::regex(R"(Connected to ([\da-f:]+))"))) {
+  if (std::regex_search(iw_link, m,
+                        std::regex(R"(Connected to ([\da-f:]+))"))) {
     connection_msg_.bssid = m[1].str();
   }
 
@@ -158,7 +158,8 @@ void WirelessWatcher::timer_callback() {
   }
 
   // tx bitrate in MBit/s
-  if (std::regex_search(iw_link, m, std::regex(R"(\btx bitrate: ([\d.]+) MBit/s)"))) {
+  if (std::regex_search(iw_link, m,
+                        std::regex(R"(\btx bitrate: ([\d.]+) MBit/s)"))) {
     try {
       connection_msg_.bitrate = std::stof(m[1].str());
     } catch (const std::invalid_argument &) {
