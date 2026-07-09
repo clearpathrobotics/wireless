@@ -12,17 +12,10 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - name: Assign PR to author or code owners
+      - name: Request review from platform team
         run: |
-          AUTHOR="${{ github.event.pull_request.user.login }}"
-          ORG="${{ github.repository_owner }}"
           REPO="${{ github.repository }}"
-          if gh api "orgs/${ORG}/members/${AUTHOR}" --silent 2>/dev/null; then
-            gh pr edit ${{ github.event.pull_request.number }} --repo "${REPO}" --add-assignee "${AUTHOR}"
-          else
-            echo "${AUTHOR} is not a member of ${ORG}, assigning code owners"
-            gh pr edit ${{ github.event.pull_request.number }} --repo "${REPO}" --add-assignee twallis-cpr,tonybaltovski
-          fi
+          gh pr edit ${{ github.event.pull_request.number }} --repo "${REPO}" --add-reviewer clearpathrobotics/clearpath-platform-team
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,9 +25,9 @@ jobs:
     permissions:
       issues: write
     steps:
-      - name: Assign issue to code owners
+      - name: Notify platform team on new issue
         run: |
           REPO="${{ github.repository }}"
-          gh issue edit ${{ github.event.issue.number }} --repo "${REPO}" --add-assignee twallis-cpr,tonybaltovski
+          gh issue comment ${{ github.event.issue.number }} --repo "${REPO}" --body "cc @clearpathrobotics/clearpath-platform-team"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
