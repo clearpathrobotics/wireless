@@ -93,7 +93,7 @@ jobs:
           wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
           sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
           sudo apt-get update
-      - uses: ros-tooling/action-ros-ci@v0.3
+      - uses: ros-tooling/action-ros-ci@v0.4
         id: action_ros_ci_step
         with:
           target-ros2-distro: humble
@@ -107,7 +107,7 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: humble
-      - uses: ros-tooling/action-ros-ci@v0.3
+      - uses: ros-tooling/action-ros-ci@v0.4
         id: action_ros_ci_step
         with:
           target-ros2-distro: humble
@@ -142,7 +142,7 @@ jobs:
           wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add -
           sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list'
           sudo apt-get update
-      - uses: ros-tooling/action-ros-ci@v0.3
+      - uses: ros-tooling/action-ros-ci@v0.4
         id: action_ros_ci_step
         with:
           target-ros2-distro: jazzy
@@ -156,7 +156,7 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: jazzy
-      - uses: ros-tooling/action-ros-ci@v0.3
+      - uses: ros-tooling/action-ros-ci@v0.4
         id: action_ros_ci_step
         with:
           target-ros2-distro: jazzy
