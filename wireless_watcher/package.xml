@@ -15,7 +15,7 @@
   <depend>diagnostic_updater</depend>
   <depend>rclcpp</depend>
   <depend>wireless_msgs</depend>
-  <depend>wireless-tools</depend>
+  <exec_depend>iw</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

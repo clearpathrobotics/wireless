@@ -18,11 +18,11 @@ target_include_directories(
 )
 
 # Link against ROS 2 libraries
-ament_target_dependencies(wireless_watcher
-  diagnostic_updater
-  rclcpp
-  std_msgs
-  wireless_msgs
+target_link_libraries(wireless_watcher
+  diagnostic_updater::diagnostic_updater
+  rclcpp::rclcpp
+  ${std_msgs_TARGETS}
+  ${wireless_msgs_TARGETS}
 )
 
 # Install executable

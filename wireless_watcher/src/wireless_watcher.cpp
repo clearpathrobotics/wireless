@@ -126,59 +126,67 @@ void WirelessWatcher::timer_callback() {
     return;
   }
 
-  std::string iwconfig_output = exec_cmd("iwconfig " + dev);
-  std::vector<std::string> fields_str = split(iwconfig_output, "\\s\\s+");
+  std::string iw_link = exec_cmd("iw dev " + dev + " link 2>/dev/null");
 
-  std::unordered_map<std::string, std::string> fields_dict;
-  fields_dict["dev"] = fields_str[0];
-  fields_dict["type"] = fields_str[1];
-  fields_dict["Access Point"] = split(fields_str[5], " ").back();
-
-  for (size_t i = 2; i < fields_str.size(); ++i) {
-    std::vector<std::string> field = split(fields_str[i], "[:=]");
-    if (field.size() == 2) {
-      fields_dict[field[0]] = field[1];
-    }
+  if (iw_link.find("Not connected") != std::string::npos || iw_link.empty())
+  {
+    return;
   }
 
-  if (fields_dict["Access Point"].find("Not-Associated") == std::string::npos) {
+  std::smatch m;
+
+  // BSSID: "Connected to xx:xx:xx:xx:xx:xx (on wlan0)"
+  if (std::regex_search(iw_link, m, std::regex(R"(Connected to ([\da-f:]+))"))) {
+    connection_msg_.bssid = m[1].str();
+  }
+
+  // SSID
+  if (std::regex_search(iw_link, m, std::regex(R"(\bSSID: (.+))"))) {
+    std::string s = m[1].str();
+    s.erase(s.find_last_not_of(" \t\r\n") + 1);
+    connection_msg_.essid = s;
+  }
+
+  // freq in MHz, convert to GHz
+  if (std::regex_search(iw_link, m, std::regex(R"(\bfreq: (\d+))"))) {
+    connection_msg_.frequency = std::stod(m[1].str()) / 1000.0;
+  }
+
+  // signal in dBm
+  if (std::regex_search(iw_link, m, std::regex(R"(\bsignal: (-?\d+) dBm)"))) {
+    connection_msg_.signal_level = static_cast<int16_t>(std::stoi(m[1].str()));
+  }
+
+  // tx bitrate in MBit/s
+  if (std::regex_search(iw_link, m, std::regex(R"(\btx bitrate: ([\d.]+) MBit/s)"))) {
     try {
-      connection_msg_.bitrate =
-          std::stof(split(fields_dict["Bit Rate"], " ")[0]);
-    } catch (std::invalid_argument) {
+      connection_msg_.bitrate = std::stof(m[1].str());
+    } catch (const std::invalid_argument &) {
       connection_msg_.bitrate = std::numeric_limits<float>::quiet_NaN();
     }
-
-    connection_msg_.txpower = std::stoi(split(fields_dict["Tx-Power"], " ")[0]);
-    connection_msg_.signal_level =
-        std::stoi(split(fields_dict["Signal level"], " ")[0]);
-
-    // Strip quotations from ESSID
-    std::string essid = fields_dict["ESSID"];
-    essid.erase(std::remove(essid.begin(), essid.end(), '\"'), essid.end());
-    connection_msg_.essid = essid;
-
-    try {
-      connection_msg_.frequency =
-          std::stof(split(fields_dict["Frequency"], " ")[0]);
-    } catch (std::invalid_argument) {
-      connection_msg_.frequency = std::numeric_limits<float>::quiet_NaN();
-    }
-
-    connection_msg_.bssid = fields_dict["Access Point"];
-
-    // Calculate link_quality from Link Quality
-    std::string link_quality_str = fields_dict["Link Quality"];
-    connection_msg_.link_quality_raw = link_quality_str;
-    size_t delimiter_pos = link_quality_str.find("/");
-    if (delimiter_pos != std::string::npos) {
-      int num = std::stoi(link_quality_str.substr(0, delimiter_pos));
-      int den = std::stoi(link_quality_str.substr(delimiter_pos + 1));
-      connection_msg_.link_quality = static_cast<float>(num) / den;
-    }
-
-    connection_pub_->publish(connection_msg_);
+  } else {
+    connection_msg_.bitrate = std::numeric_limits<float>::quiet_NaN();
   }
+
+  // txpower from iw dev info
+  std::string iw_info = exec_cmd("iw dev " + dev + " info 2>/dev/null");
+  if (std::regex_search(iw_info, m, std::regex(R"(\btxpower ([\d.]+) dBm)"))) {
+    connection_msg_.txpower = static_cast<int16_t>(std::stof(m[1].str()));
+  }
+
+  // Derive link quality from signal level (-100 dBm = 0%, -50 dBm = 100%)
+  int quality_pct;
+  if (connection_msg_.signal_level >= -50) {
+    quality_pct = 100;
+  } else if (connection_msg_.signal_level <= -100) {
+    quality_pct = 0;
+  } else {
+    quality_pct = 2 * (connection_msg_.signal_level + 100);
+  }
+  connection_msg_.link_quality_raw = std::to_string(quality_pct) + "/100";
+  connection_msg_.link_quality = static_cast<float>(quality_pct) / 100.0f;
+
+  connection_pub_->publish(connection_msg_);
 }
 
 std::string WirelessWatcher::exec_cmd(const std::string &cmd) {
