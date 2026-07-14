@@ -2,8 +2,8 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+3.0.0 (2026-07-14)
+------------------
 * Minor linting change.
 * Changed to iw from wireless-tools for Lyrical.
 * Removed lint test and fixed deps for msgs.
