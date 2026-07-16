@@ -116,7 +116,7 @@ void WirelessWatcher::timer_callback() {
     std::ifstream operstate_file(operstate_filepath.c_str());
     std::string operstate;
     operstate_file >> operstate;
-    connected_msg_.data = operstate == "up";
+    connected_msg_.data = (operstate == "up") || (operstate == "dormant");
   } catch (const std::exception &e) {
     connected_msg_.data = false;
   }
