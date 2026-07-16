@@ -2,6 +2,13 @@
 Changelog for package wireless_watcher
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added the dormant state as still being connected. (`#30 <https://github.com/clearpathrobotics/wireless/issues/30>`_)
+* Removed lint test and fixed deps for msgs.
+* Added precommit, dependabot, CI, mergify and issue template.
+* Contributors: Tony Baltovski
+
 1.1.5 (2025-04-30)
 ------------------
 * Added Github codeowners, issue template, CI.  Also, fixed linting. (`#24 <https://github.com/clearpathrobotics/wireless/issues/24>`_)
